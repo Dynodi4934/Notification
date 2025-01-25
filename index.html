@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Push Notification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>Custom Push Notification</h1>
+  <p>Type a message below and click the button to see it as a notification.</p>
+  <input type="text" id="message" placeholder="Enter your message here" />
+  <button id="notify-btn">Show Notification</button>
+  <p id="status"></p>
+
+  <script>
+    // Check if the browser supports Service Workers and Notifications
+    if ('serviceWorker' in navigator && 'Notification' in window) {
+      // Register the service worker
+      navigator.serviceWorker.register('service-worker.js').then(function(registration) {
+        console.log('Service Worker Registered:', registration);
+      }).catch(function(error) {
+        console.error('Service Worker Registration Failed:', error);
+      });
+
+      // Request notification permission
+      Notification.requestPermission().then(permission => {
+        console.log('Notification Permission:', permission);
+      });
+
+      // Handle button click to show notification
+      document.getElementById('notify-btn').addEventListener('click', function() {
+        const message = document.getElementById('message').value.trim(); // Get input value and trim spaces
+
+        if (!message) {
+          document.getElementById('status').textContent = 'Please enter a valid message.';
+          document.getElementById('status').style.color = 'red';
+          return;
+        }
+
+        if (Notification.permission === 'granted') {
+          navigator.serviceWorker.ready.then(function(registration) {
+            registration.showNotification('Custom Notification', {
+              body: message, // Use the custom message
+              icon: 'https://via.placeholder.com/100', // You can allow users to customize the icon too
+              vibrate: [200, 100, 200],
+              tag: 'custom-notification',
+              actions: [
+                {
+                  action: 'open_wikipedia',
+                  title: 'Open Wikipedia'
+                }
+              ]
+            });
+            document.getElementById('status').textContent = 'Notification sent successfully!';
+            document.getElementById('status').style.color = 'green';
+          });
+        } else {
+          document.getElementById('status').textContent = 'Notification permission is not granted.';
+          document.getElementById('status').style.color = 'red';
+        }
+      });
+    } else {
+      alert('Your browser does not support notifications or service workers.');
+    }
+  </script>
+</body>
+  </html>
